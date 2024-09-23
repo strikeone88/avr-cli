@@ -1,0 +1,86 @@
+﻿
+Atmel AVR SPI Commands
+======================
+
+						Request			Response
+Programming Enable		AC 53 xx yy		zz AC 53 xx
+Read Device Code		30 nn XX mm		yy 30 nn VV		XX								VV
+														00=Vendor Code					1E=Manufactured by Atmel
+																						00=Device is Locked
+														01=Part Family and Flash Size	9n=AVR with 2^n KB Flash Memory
+														02=Part Number
+Read Flash Word LSB		20 AH AL xx		zz 20 AH VV		AH and AL are the address high and low bytes respectively.
+Read Flash Word MSB		28 AH AL xx		zz 28 AH VV
+
+Read EEPROM Byte		A0 AH AL xx		zz A0 AH VV
+Write EEPROM Byte		C0 AH AL VV		zz C0 AH AL
+
+Set Lock Bits			AC LL xx yy		zz AC LL xx		LL: Defaults to 0xFF, bits 0 and 1 should be cleared to change
+															the lock bits. Clear lock bit 1 (D1) to disable programming.
+
+Chip Erase Operation	AC 8x yy nn		zz AC 8x yy			Release RESET to finish the chip erase operation.
+
+Poll RDY/BSY			F0 00 00 00		zz F0 00 RR		RR: D0=1 indicates a programming operation is still pending.
+
+Load ProgMem Page High	48 AH AL VV		zz 48 ?? ??
+Load ProgMem Page Low	40 AH AL VV		zz 40 ?? ??
+Write ProgMem Page		4C AH AL 00
+
+Read Lock Bits			58 00 00 00		-- -- -- LL
+
+Read Fuse Low Bits		50 00 00 00		-- -- -- FSL
+Read Fuse High Bits		58 08 00 00		-- -- -- FSH
+Read Ext. Fuse Bits		50 08 00 00     00 00 00 FSE
+
+Write Fuse Low Bits		AC A0 00 FSL
+Write Fuse High Bits	AC A8 00 FSH
+Write Ext. Fuse Bits	AC A4 00 FSE
+
+****************************************************************************
+**** IMPORTANT NOTE: For fuse bits, 0 is programmed, 1 is unprogrammed. ****
+****************************************************************************
+
+Fuse Extended Byte (FSE):
+	7-1		Reserved	(1111111)
+	0		SELFPRGEN	Self-programming enabled (1) [Enabled SPM instruction]
+
+Fuse High Byte (FSH):
+	7		RSTDISBL	External reset disabled (1)
+	6		DWEN		DebugWIRE enabled (1)
+	5		SPIEN		Serial programming enabled (0)
+	4		WDTON		Watchdog timer always on (1)
+	3		EESAVE		EEPROM preserves chip erase (1)
+	2-0		BODLEVEL	Brown-out detector trigger level (111)
+						111	Disabled
+						110	1.7 - 1.8 - 2.0
+						101 2.5 - 2.7 - 2.9
+						100 4.1 - 4.3 - 4.5
+
+Fuse Low Byte (FSL):
+	7		CKDIV8		Clock divided by 8	(0)
+	6		CKOUT		Clock output enabled (1)
+	5-4		SUT[1:0]	Start-up time setting (10)
+	3-0		CKSEL		Clock selected (0010)
+
+						0000	External Clock
+						0001	High-Frequency PLL Clock (16 MHz)
+						0010	Calibrated Internal Oscillator (8 MHz)
+						0011	Calibrated Internal Oscillator (6 MHz)
+						0100	Internal 128kHz Oscillator
+						0110	Low-Frequency Crystal Oscillator
+						0101	Reserved
+						0111	Reserved
+
+						1000	0.4 - 0.9 MHz
+						1010	0.9 - 3.0 MHz (12pF - 22pF)
+						1100	3.0 - 8.0 MHz (12pF - 22pF)
+						1110	8.0 MHz +  (12pF - 22pF)
+
+*** Signatures: ***
+	Signature	Device		Flash	PgSize	PCWORD	Pages	PCPAGE		EEPROM	PgSize	PCWORD	Pages	PCPAGE		SRAM
+	1E9108		ATtiny25	2 KB	16		3:0		64		PC[9:4]		128		4		1:0		32		EEA[6:2]	128
+	1E9206		ATtiny45	4 KB	32		4:0		64		PC[10:5]	256		4		1:0		64		EEA[7:2]	256
+	1E930B		ATtiny85	8 KB	32		4:0		128		PC[11:5]	512		4		1:0		128		EEA[8:2]	512
+	1E9006		ATtiny13A	1 KB	16		3:0		32		PC[8:4]		64		4		1:0		16		EEA[5:2]	64
+
+NOTE: PgSize is in words.

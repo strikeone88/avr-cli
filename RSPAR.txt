@@ -1,0 +1,9 @@
+﻿RSPAR Details
+=============
+
+Parallel Port
+
+SCK: Pin 2 (Brown)
+MOSI: Pin 1 (Gray)
+MISO: Pin 6 (Red)
+RESET: Pin 3 (Yellow)
